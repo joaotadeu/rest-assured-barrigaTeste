@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.is;
 
 public class barrigaTest extends baseTeste {
 
@@ -37,12 +38,36 @@ public class barrigaTest extends baseTeste {
     @Test
     public void deveIncluirContaComSucesso(){
 
-        // Fazer a requisição POST com o token e o corpo
         given()
-                .header("Authorization", "JWT " + token)
+                .header("Authorization", "JWT " + TOKEN)
                 .body("{ \"nome\": \"conta qualquer\" }")
                 .post("/contas")
                 .then()
                 .statusCode(201);  // Supondo que a criação da conta retorna 201 (Criado)
     }
+
+    @Test
+    public void deveAlterarContaComSucesso(){
+
+        given()
+                    .header("Authorization", "JWT " + TOKEN)
+                    .body("{ \"nome\": \"conta qualquer\" }")
+                .put("/contas/2146362")
+                    .then()
+                .log().all()
+                    .statusCode(200);
+    }
+
+    @Test
+    public void naoDeveInserirContaDuplicado(){
+        given()
+                .header("Authorization", "JWT " + TOKEN)
+                .body("{ \"nome\": \"conta qualquer\" }")
+                .post("/contas")
+                .then()
+                .log().all()
+                .statusCode(400)
+                .body("error", is("Já existe uma conta com esse nome!"));
+    }
+
 }
